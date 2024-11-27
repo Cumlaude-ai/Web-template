@@ -23,7 +23,7 @@ const isProtectedRoute = createRouteMatcher([
   '/:locale/api(.*)',
 ]);
 
-export default function middleware(
+export default async function middleware(
   request: NextRequest,
   event: NextFetchEvent,
 ) {
@@ -32,19 +32,19 @@ export default function middleware(
     || request.nextUrl.pathname.includes('/sign-up')
     || isProtectedRoute(request)
   ) {
-    return clerkMiddleware((auth, req) => {
-      const authObj = auth();
+    return clerkMiddleware(async (auth, req) => {
+      const authObj = await auth();
 
       if (isProtectedRoute(req)) {
-        const locale
-          = req.nextUrl.pathname.match(/(\/.*)\/dashboard/)?.at(1) ?? '';
+        // const locale
+        //   = req.nextUrl.pathname.match(/(\/.*)\/dashboard/)?.at(1) ?? '';
 
-        const signInUrl = new URL(`${locale}/sign-in`, req.url);
+        //const signInUrl = new URL(`${locale}/sign-in`, req.url);
 
-        authObj.protect({
-          // `unauthenticatedUrl` is needed to avoid error: "Unable to find `next-intl` locale because the middleware didn't run on this request"
-          unauthenticatedUrl: signInUrl.toString(),
-        });
+        // authObj.protect({
+        //   // `unauthenticatedUrl` is needed to avoid error: "Unable to find `next-intl` locale because the middleware didn't run on this request"
+        //   unauthenticatedUrl: signInUrl.toString(),
+        // });
       }
 
       if (
