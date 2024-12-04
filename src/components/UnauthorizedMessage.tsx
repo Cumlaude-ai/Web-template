@@ -1,38 +1,17 @@
-import { getTranslations } from 'next-intl/server';
-import Image from "next/image"
+import SignInButton from "./buttons/SignInButton";
 import { getProviders } from "@/utils/Helpers"
+import Image from "next/image"
 
-// Component imports
-import SignInButton from '@/components/buttons/SignInButton'
-
-
-export async function generateMetadata(props: { params: Promise<{ locale: string }> }) {
-  const t = await getTranslations({
-    locale: (await props.params).locale,
-    namespace: 'SignIn',
-  });
-
-  return {
-    title: t('meta_title'),
-    description: t('meta_description'),
-  };
-}
-
-async function SignInPage(props: { params: Promise<{ locale: string }> }) {
-  const t = await getTranslations({
-    locale: (await props.params).locale,
-    namespace: 'SignIn',
-  });
-  const providers: ReturnType<typeof getProviders> = (await getProviders()) || {};
+export default function UnauthorizedMessage({ providers }: { providers: ReturnType<typeof getProviders> }) {
 
   return (
     <div className="w-full lg:grid lg:min-h-[600px] lg:grid-cols-2 xl:min-h-[800px]">
       <div className="flex items-center justify-center py-12">
         <div className="mx-auto grid w-[350px] gap-6">
           <div className="grid gap-2 text-center">
-            <h1 className="text-3xl font-bold">{t('meta_title')}</h1>
+            <h1 className="text-3xl font-bold">Login</h1>
             <p className="text-balance text-muted-foreground">
-              {t('meta_description')}
+              Login using your microsoft account.
             </p>
           </div>
 
@@ -54,6 +33,4 @@ async function SignInPage(props: { params: Promise<{ locale: string }> }) {
       </div>
     </div>
   )
-};
-
-export default SignInPage;
+}

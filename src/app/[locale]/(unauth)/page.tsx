@@ -1,7 +1,6 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 import { CTA } from '@/templates/CTA';
-import { DemoBanner } from '@/templates/DemoBanner';
 import { FAQ } from '@/templates/FAQ';
 import { Features } from '@/templates/Features';
 import { Footer } from '@/templates/Footer';
@@ -28,7 +27,6 @@ const IndexPage = async (props: { params: Promise<{ locale: string }> }
 
   return (
     <>
-      <DemoBanner />
       <Navbar />
       <Hero />
       <Sponsors />

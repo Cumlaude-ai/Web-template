@@ -1,12 +1,10 @@
-import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
-import {
-  type NextFetchEvent,
-  type NextRequest,
-  NextResponse,
-} from 'next/server';
+import { type NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import { match } from "@formatjs/intl-localematcher";
+import { decrypt } from "@/msal/session";
 import createMiddleware from 'next-intl/middleware';
 
-import { AllLocales, AppConfig } from './utils/AppConfig';
+import { AllLocales, AppConfig } from '@/utils/AppConfig';
 
 const intlMiddleware = createMiddleware({
   locales: AllLocales,
@@ -14,60 +12,80 @@ const intlMiddleware = createMiddleware({
   defaultLocale: AppConfig.defaultLocale,
 });
 
-const isProtectedRoute = createRouteMatcher([
-  '/dashboard(.*)',
-  '/:locale/dashboard(.*)',
-  '/onboarding(.*)',
-  '/:locale/onboarding(.*)',
-  '/api(.*)',
-  '/:locale/api(.*)',
-]);
+const locales = ["en-US", "nl-NL", "nl"];
+const defaultLocale = "en-US";
 
-export default async function middleware(
-  request: NextRequest,
-  event: NextFetchEvent,
-) {
-  if (
-    request.nextUrl.pathname.includes('/sign-in')
-    || request.nextUrl.pathname.includes('/sign-up')
-    || isProtectedRoute(request)
-  ) {
-    return clerkMiddleware(async (auth, req) => {
-      const authObj = await auth();
+const protectedRoutes = [
+  "/dashboard",
+];
 
-      if (isProtectedRoute(req)) {
-        // const locale
-        //   = req.nextUrl.pathname.match(/(\/.*)\/dashboard/)?.at(1) ?? '';
+// Get the preferred locale, similar to the above or using a library
+function getLocale(request: any) {
+  try {
+    request.cookies.set("locale", "nl-NL", {
+      maxAge: 60 * 60 * 24 * 365,
+      path: "/",
+      sameSite: "lax",
+    });
 
-        //const signInUrl = new URL(`${locale}/sign-in`, req.url);
+    const browserLanguage = request.cookies.has("locale")
+      ? [request.cookies.get("locale").value as string]
+      : [defaultLocale];
 
-        // authObj.protect({
-        //   // `unauthenticatedUrl` is needed to avoid error: "Unable to find `next-intl` locale because the middleware didn't run on this request"
-        //   unauthenticatedUrl: signInUrl.toString(),
-        // });
-      }
-
-      if (
-        authObj.userId
-        && !authObj.orgId
-        && req.nextUrl.pathname.includes('/dashboard')
-        && !req.nextUrl.pathname.endsWith('/organization-selection')
-      ) {
-        const orgSelection = new URL(
-          '/onboarding/organization-selection',
-          req.url,
-        );
-
-        return NextResponse.redirect(orgSelection);
-      }
-
-      return intlMiddleware(req);
-    })(request, event);
+    return match(browserLanguage, locales, defaultLocale);
+  } catch (error: any) {
+    console.error("Error getting locale:", error.message);
+    console.error("Error stack trace:", error.stack);
+    return defaultLocale;
   }
+}
 
-  return intlMiddleware(request);
+export async function middleware(req: NextRequest) {
+  try {
+    const path = req.nextUrl.pathname;
+
+    // 1. Get the preferred locale
+    const pathnameHasLocale = locales.some(
+      (locale) => path.startsWith(`/${locale}/`) || path === `/${locale}`,
+    );
+    const locale = getLocale(req);
+
+
+    // 2. Check if the route is protected or public
+    const isProtectedRoute = protectedRoutes.includes(path);
+
+    // 3. Decrypt the session from the cookie
+    const cookie = (await cookies()).get("session")?.value;
+    const session = await decrypt(cookie);
+
+    // 4. Redirect to /login if the user is not authenticated
+    if (isProtectedRoute && !session?.userId) {
+      return NextResponse.redirect(new URL(`/${locale}/login`, req.nextUrl));
+    }
+
+    // 5. Redirect to /dashboard if the user is authenticated
+    if (
+      path === `/${locale}/login` &&
+      session?.userId &&
+      !req.nextUrl.pathname.startsWith(`/${locale}/dashboard`)
+    ) {
+      return NextResponse.redirect(new URL(`/${locale}/dashboard`, req.nextUrl));
+    }
+
+    // 6. Add localization if not included
+    if (!pathnameHasLocale) {
+      return intlMiddleware(req);
+    }
+    return NextResponse.next()
+  }
+  catch (error) {
+    console.error(error)
+    return NextResponse.error()
+  }
 }
 
 export const config = {
-  matcher: ['/((?!.+\\.[\\w]+$|_next|monitoring).*)', '/', '/(api|trpc)(.*)'], // Also exclude tunnelRoute used in Sentry from the matcher
+  matcher: [
+    "/((?!api|_next/static|_next/image|assets|models|scripts|favicon.ico|icons).*)",
+  ],
 };

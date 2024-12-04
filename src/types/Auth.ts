@@ -1,4 +1,5 @@
 import type { EnumValues } from './Enum';
+import type { JWTPayload } from "jose";
 
 export const ORG_ROLE = {
   ADMIN: 'org:admin',
@@ -12,3 +13,7 @@ export const ORG_PERMISSION = {
 } as const;
 
 export type OrgPermission = EnumValues<typeof ORG_PERMISSION>;
+
+export interface SessionPayload extends JWTPayload {
+  userId: string;
+}

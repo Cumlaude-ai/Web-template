@@ -1,5 +1,6 @@
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { unstable_cache } from 'next/cache'
 
 import { AppConfig } from './AppConfig';
 
@@ -8,6 +9,21 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export const MILLISECONDS_IN_ONE_DAY = 86_400_000;
+
+export const getProviders = unstable_cache(async () => {
+  const res = await fetch(getBaseUrl() + `/api/auth/providers`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!res.ok) {
+    return []
+  }
+
+  return res.json();
+});
 
 export const getBaseUrl = () => {
   if (process.env.NEXT_PUBLIC_APP_URL) {
