@@ -5,16 +5,16 @@ import { LocaleSwitcher } from '@/components/LocaleSwitcher';
 import { buttonVariants } from '@/components/ui/buttonVariants';
 import { CenteredMenu } from '@/features/landing/CenteredMenu';
 import { Section } from '@/features/landing/Section';
+import Image from "next/image"
 
-import { Logo } from './Logo';
 
 export const Navbar = () => {
   const t = useTranslations('Navbar');
 
   return (
-    <Section className="px-3 py-6">
+    <Section className="px-3 py-6 sticky bg-white top-0 dark:bg-black z-50">
       <CenteredMenu
-        logo={<Logo />}
+        logo={<Image src="/images/CumlaudeAI-logo.png" alt="CumlaudeAI-logo.png" width={120} height={40}/>}
         rightMenu={(
           <>
             {/* PRO: Dark mode toggle button */}
