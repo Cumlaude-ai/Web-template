@@ -45,6 +45,7 @@
     "@radix-ui/react-slot": "^1.1.0",
     "@radix-ui/react-tooltip": "^1.1.4",
     "@sentry/nextjs": "^8.40.0",
+    "@splinetool/react-spline": "^4.0.0",
     "@spotlightjs/spotlight": "^2.6.1",
     "@t3-oss/env-nextjs": "^0.11.1",
     "@tanstack/react-table": "^8.20.5",

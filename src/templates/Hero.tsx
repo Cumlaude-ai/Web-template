@@ -5,12 +5,13 @@ import { badgeVariants } from '@/components/ui/badgeVariants';
 import { buttonVariants } from '@/components/ui/buttonVariants';
 import { CenteredHero } from '@/features/landing/CenteredHero';
 import { Section } from '@/features/landing/Section';
+import Spline from '@splinetool/react-spline/next';
 
 export const Hero = () => {
   const t = useTranslations('Hero');
 
   return (
-    <Section className="py-36">
+    <Section className="p-0 m-0 h-[90vh]">
       <CenteredHero
         banner={(
           <a
@@ -50,6 +51,10 @@ export const Hero = () => {
             </a>
           </>
         )}
+      />
+      <Spline
+      className="w-full h-96"
+        scene="https://prod.spline.design/M3euOSArvYuSEcEm/scene.splinecode" 
       />
     </Section>
   );
