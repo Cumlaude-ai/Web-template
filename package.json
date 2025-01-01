@@ -51,6 +51,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.36.4",
+    "eslint-config": "^0.3.0",
     "eslint-config@latest": "link:@antfu\\eslint-config@latest",
     "import-in-the-middle": "^1.12.0",
     "inquirer": "^9.3.7",
