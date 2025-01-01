@@ -391,6 +391,21 @@ To use Checkly, you must first create an account on [their website](https://www.
 
 To complete the setup, update the `checkly.config.ts` file with your own email address and production URL.
 
+### Azure AD
+
+To integrate with Azure AD, you need to set the following environment variables:
+
+- `AZURE_TENANT_ID`: The ID of your Azure AD tenant.
+- `AZURE_CLIENT_SECRET`: The client secret for your Azure AD application.
+- `AZURE_CLIENT_ID`: The client ID for your Azure AD application.
+
+### NextAuth.js
+
+NextAuth.js is used for authentication in the project. To configure NextAuth.js, you need to set the following environment variable:
+
+- `NEXTAUTH_SECRET`: A secret key used for signing cookies and tokens in NextAuth.js.
+
+
 ### Useful commands
 
 #### Bundle Analyzer
